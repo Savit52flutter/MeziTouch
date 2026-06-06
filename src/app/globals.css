@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --mezitouch-primary: #004450;
+  --mezitouch-primary-hover: #005463;
+  --mezitouch-teal: #008097;
+  --mezitouch-teal-light: #429da5;
+  --mezitouch-accent: #61ce70;
+  --mezitouch-purple: #7b48a1;
+  --mezitouch-cream: #fef8f3;
+  --mezitouch-cream-soft: #f8f3ee;
+  --mezitouch-surface: #ffffff;
+  --mezitouch-border: #e6ecec;
+  --mezitouch-gray: #b7c6c7;
+  --mezitouch-text: #333333;
+  --mezitouch-muted: #5f5f5f;
+  --mezitouch-warm: #ffbc7d;
+  --background: var(--mezitouch-cream);
+  --foreground: var(--mezitouch-text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-mezi-primary: var(--mezitouch-primary);
+  --color-mezi-primary-hover: var(--mezitouch-primary-hover);
+  --color-mezi-teal: var(--mezitouch-teal);
+  --color-mezi-teal-light: var(--mezitouch-teal-light);
+  --color-mezi-accent: var(--mezitouch-accent);
+  --color-mezi-purple: var(--mezitouch-purple);
+  --color-mezi-cream: var(--mezitouch-cream);
+  --color-mezi-cream-soft: var(--mezitouch-cream-soft);
+  --color-mezi-surface: var(--mezitouch-surface);
+  --color-mezi-border: var(--mezitouch-border);
+  --color-mezi-gray: var(--mezitouch-gray);
+  --color-mezi-text: var(--mezitouch-text);
+  --color-mezi-muted: var(--mezitouch-muted);
+  --color-mezi-warm: var(--mezitouch-warm);
+  --font-sans: var(--font-albert-sans), system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-albert-sans), system-ui, sans-serif;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #333333 !important;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
 }

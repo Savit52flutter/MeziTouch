@@ -1,0 +1,7 @@
+-- Admin access uses Supabase Auth (email + password), not env passwords.
+--
+-- 1. In Supabase Dashboard → Authentication → Users → Add user
+-- 2. Set User Metadata to: { "role": "admin" }
+--    OR add the email to ADMIN_EMAILS in your server environment.
+--
+-- No SQL changes are required for admin login.

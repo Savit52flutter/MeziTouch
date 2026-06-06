@@ -1,0 +1,7 @@
+-- Do not run this file with YOUR_SESSION_ID placeholders.
+-- The app creates all 4 session packs automatically when you click "Create session".
+--
+-- If you need to reseed one pack manually:
+-- 1. Find the session UUID: select id, code, survey_pack from sessions;
+-- 2. Delete its questions: delete from questions where session_id = 'paste-uuid-here';
+-- 3. Use the admin panel "Reload pack questions" button instead.
