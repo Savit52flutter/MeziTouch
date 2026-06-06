@@ -15,7 +15,11 @@ export async function GET(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const hasAccess = await hasValidSessionAccess(session.id, session.code);
+    const hasAccess = await hasValidSessionAccess(
+      session.id,
+      session.code,
+      _request,
+    );
 
     return NextResponse.json({
       has_access: hasAccess,

@@ -48,6 +48,10 @@ export function PastEventsList() {
   }, []);
 
   useEffect(() => {
+    if (adminAuth?.authenticated === null) {
+      return;
+    }
+
     if (adminAuth?.authenticated === false) {
       setNeedsSignIn(true);
       setEvents([]);
@@ -60,9 +64,7 @@ export function PastEventsList() {
       return;
     }
 
-    if (!adminAuth) {
-      void loadEvents();
-    }
+    void loadEvents();
   }, [adminAuth?.authenticated, loadEvents]);
 
   if (loading) {

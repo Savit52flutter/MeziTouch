@@ -26,7 +26,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const allowed = await hasValidSessionAccess(sessionId, sessionCode);
+    const allowed = await hasValidSessionAccess(
+      sessionId,
+      sessionCode,
+      request,
+    );
 
     if (!allowed) {
       return NextResponse.json({ error: "Session access required" }, { status: 401 });

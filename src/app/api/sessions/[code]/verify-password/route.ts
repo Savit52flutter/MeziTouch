@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { buildSessionAccessCookie } from "@/lib/session-auth";
+import { setSessionAccessCookie } from "@/lib/session-auth";
 import {
   isValidSessionPasswordFormat,
   normalizeSessionPassword,
@@ -22,12 +22,9 @@ export async function POST(
     }
 
     if (!session.access_password) {
-      const response = NextResponse.json({ ok: true });
-      response.headers.set(
-        "Set-Cookie",
-        buildSessionAccessCookie(session.id, session.code),
-      );
-      return response;
+      const accessToken = await setSessionAccessCookie(session.id, session.code);
+
+      return NextResponse.json({ ok: true, access_token: accessToken });
     }
 
     const password = normalizeSessionPassword(body.password ?? "");
@@ -43,12 +40,9 @@ export async function POST(
       return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
     }
 
-    const response = NextResponse.json({ ok: true });
-    response.headers.set(
-      "Set-Cookie",
-      buildSessionAccessCookie(session.id, session.code),
-    );
-    return response;
+    const accessToken = await setSessionAccessCookie(session.id, session.code);
+
+    return NextResponse.json({ ok: true, access_token: accessToken });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

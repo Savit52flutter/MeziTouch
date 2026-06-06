@@ -10,6 +10,10 @@ import {
 } from "@/lib/answers";
 import { getParticipantId } from "@/lib/participant";
 import {
+  sessionAccessHeaders,
+  storeSessionAccessToken,
+} from "@/lib/session-access";
+import {
   questionAllowsMultiple,
   questionAllowsOther,
 } from "@/lib/question-rules";
@@ -72,7 +76,10 @@ export default function JoinClient({ code }: { code: string }) {
     const participantId = getParticipantId();
     const response = await fetch(
       `/api/sessions/${code}/survey?participant_id=${encodeURIComponent(participantId)}`,
-      { credentials: "include" },
+      {
+        credentials: "include",
+        headers: sessionAccessHeaders(code),
+      },
     );
     const data = await response.json();
 
@@ -160,6 +167,7 @@ export default function JoinClient({ code }: { code: string }) {
 
       const statusResponse = await fetch(`/api/sessions/${code}/access-status`, {
         credentials: "include",
+        headers: sessionAccessHeaders(code),
       });
       const status = await statusResponse.json();
 
@@ -174,8 +182,12 @@ export default function JoinClient({ code }: { code: string }) {
           method: "POST",
           credentials: "include",
         });
+        const accessData = await accessResponse.json();
 
         if (accessResponse.ok) {
+          if (accessData.access_token) {
+            storeSessionAccessToken(code, accessData.access_token);
+          }
           setIsUnlocked(true);
           await loadSurvey();
           return;
@@ -209,6 +221,10 @@ export default function JoinClient({ code }: { code: string }) {
 
       if (!response.ok) {
         throw new Error(data.error ?? "Incorrect password");
+      }
+
+      if (data.access_token) {
+        storeSessionAccessToken(code, data.access_token);
       }
 
       setIsUnlocked(true);
@@ -283,7 +299,10 @@ export default function JoinClient({ code }: { code: string }) {
     try {
       const response = await fetch("/api/responses", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...sessionAccessHeaders(code),
+        },
         credentials: "include",
         body: JSON.stringify({
           session_id: sessionMeta.id,

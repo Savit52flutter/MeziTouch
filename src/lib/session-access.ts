@@ -1,13 +1,41 @@
-const STORAGE_PREFIX = "mezitouch_access_";
+const TOKEN_PREFIX = "mezitouch_session_token_";
 
-export function hasSessionAccess(code: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return sessionStorage.getItem(`${STORAGE_PREFIX}${code.toUpperCase()}`) === "1";
+function storageKey(code: string): string {
+  return `${TOKEN_PREFIX}${code.toUpperCase()}`;
 }
 
-export function grantSessionAccess(code: string): void {
-  sessionStorage.setItem(`${STORAGE_PREFIX}${code.toUpperCase()}`, "1");
+export function storeSessionAccessToken(code: string, token: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  sessionStorage.setItem(storageKey(code), token);
+}
+
+export function getStoredSessionAccessToken(code: string): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return sessionStorage.getItem(storageKey(code));
+}
+
+export function clearStoredSessionAccessToken(code: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  sessionStorage.removeItem(storageKey(code));
+}
+
+export function sessionAccessHeaders(code: string): HeadersInit {
+  const token = getStoredSessionAccessToken(code);
+
+  if (!token) {
+    return {};
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 }

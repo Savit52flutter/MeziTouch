@@ -1,6 +1,14 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
+
+export function getSupabaseCookieOptions(): CookieOptions {
+  return {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  };
+}
 
 function getSupabaseAuthEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -13,6 +21,13 @@ function getSupabaseAuthEnv() {
   }
 
   return { url, anonKey };
+}
+
+export function isSupabaseAuthConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
 }
 
 export async function createAuthServerClient() {
@@ -34,6 +49,7 @@ export async function createAuthServerClient() {
         }
       },
     },
+    cookieOptions: getSupabaseCookieOptions(),
   });
 }
 

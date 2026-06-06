@@ -2,7 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { isAdminUser } from "@/lib/supabase/auth-server";
+import {
+  getSupabaseCookieOptions,
+  isAdminUser,
+} from "@/lib/supabase/auth-server";
 
 export async function POST(request: Request) {
   try {
@@ -42,6 +45,7 @@ export async function POST(request: Request) {
           });
         },
       },
+      cookieOptions: getSupabaseCookieOptions(),
     });
 
     const { data, error } = await supabase.auth.signInWithPassword({

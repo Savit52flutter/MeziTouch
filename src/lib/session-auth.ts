@@ -57,21 +57,58 @@ export async function getSessionAccessToken(
   return store.get(sessionCookieName(code))?.value ?? null;
 }
 
-export function buildSessionAccessCookie(
+function getBearerSessionToken(request?: Request): string | null {
+  if (!request) {
+    return null;
+  }
+
+  const authorization = request.headers.get("authorization");
+
+  if (!authorization?.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authorization.slice("Bearer ".length).trim();
+  return token || null;
+}
+
+export async function resolveSessionAccessToken(
+  code: string,
+  request?: Request,
+): Promise<string | null> {
+  const cookieToken = await getSessionAccessToken(code);
+
+  if (cookieToken) {
+    return cookieToken;
+  }
+
+  return getBearerSessionToken(request);
+}
+
+export async function setSessionAccessCookie(
   sessionId: string,
   code: string,
-): string {
+): Promise<string> {
   const token = createSessionAccessToken(sessionId, code);
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  const cookieStore = await cookies();
 
-  return `${sessionCookieName(code)}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
+  cookieStore.set(sessionCookieName(code), token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 86400,
+  });
+
+  return token;
 }
 
 export async function hasValidSessionAccess(
   sessionId: string,
   code: string,
+  request?: Request,
 ): Promise<boolean> {
-  const token = await getSessionAccessToken(code);
+  const token = await resolveSessionAccessToken(code, request);
 
   if (!token) {
     return false;

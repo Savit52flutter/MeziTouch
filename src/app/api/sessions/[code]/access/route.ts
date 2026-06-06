@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { buildSessionAccessCookie } from "@/lib/session-auth";
+import { setSessionAccessCookie } from "@/lib/session-auth";
 import { getSessionByCode } from "@/lib/session-lookup";
 
 export async function POST(
@@ -22,12 +22,9 @@ export async function POST(
       );
     }
 
-    const response = NextResponse.json({ ok: true });
-    response.headers.set(
-      "Set-Cookie",
-      buildSessionAccessCookie(session.id, session.code),
-    );
-    return response;
+    const accessToken = await setSessionAccessCookie(session.id, session.code);
+
+    return NextResponse.json({ ok: true, access_token: accessToken });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

@@ -16,7 +16,11 @@ export async function GET(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const allowed = await hasValidSessionAccess(session.id, session.code);
+    const allowed = await hasValidSessionAccess(
+      session.id,
+      session.code,
+      request,
+    );
 
     if (!allowed) {
       return NextResponse.json({ error: "Session access required" }, { status: 401 });

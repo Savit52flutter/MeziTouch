@@ -41,9 +41,15 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
 
   const refreshStatus = useCallback(async () => {
-    const response = await fetch("/api/admin/status", { credentials: "include" });
-    const data = await response.json();
-    setAuthenticated(Boolean(data.authenticated));
+    try {
+      const response = await fetch("/api/admin/status", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      setAuthenticated(Boolean(data.authenticated));
+    } catch {
+      setAuthenticated(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -69,10 +75,17 @@ function useAdminAuthState() {
   const [localChecked, setLocalChecked] = useState(false);
 
   const checkLocalStatus = useCallback(async () => {
-    const response = await fetch("/api/admin/status", { credentials: "include" });
-    const data = await response.json();
-    setLocalAuthenticated(Boolean(data.authenticated));
-    setLocalChecked(true);
+    try {
+      const response = await fetch("/api/admin/status", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      setLocalAuthenticated(Boolean(data.authenticated));
+    } catch {
+      setLocalAuthenticated(false);
+    } finally {
+      setLocalChecked(true);
+    }
   }, []);
 
   useEffect(() => {
