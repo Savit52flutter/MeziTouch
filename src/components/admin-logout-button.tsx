@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button, Card, Input, Label } from "@/components/ui";
+import {
+  adminAuthHeaders,
+  clearAdminAccessToken,
+} from "@/lib/admin-session";
 
 export function AdminLogoutButton() {
   const router = useRouter();
@@ -14,7 +18,10 @@ export function AdminLogoutButton() {
   const [error, setError] = useState("");
 
   const loadStatus = useCallback(async () => {
-    const response = await fetch("/api/admin/status", { credentials: "include" });
+    const response = await fetch("/api/admin/status", {
+      credentials: "include",
+      headers: adminAuthHeaders(),
+    });
     const data = await response.json();
 
     if (data.email) {
@@ -50,7 +57,10 @@ export function AdminLogoutButton() {
     try {
       const response = await fetch("/api/admin/logout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...adminAuthHeaders(),
+        },
         credentials: "include",
         body: JSON.stringify({ password }),
       });
@@ -60,6 +70,7 @@ export function AdminLogoutButton() {
         throw new Error(data.error ?? "Failed to log out");
       }
 
+      clearAdminAccessToken();
       setShowConfirm(false);
       router.push("/");
       router.refresh();

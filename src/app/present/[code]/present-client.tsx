@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ResultBars } from "@/components/result-bars";
 import { Badge, Card, PageShell } from "@/components/ui";
+import { adminAuthHeaders } from "@/lib/admin-session";
 import { questionAllowsMultiple } from "@/lib/question-rules";
 import type { PresenterQuestionResults } from "@/lib/presenter-data";
 import type { Session } from "@/lib/types";
@@ -18,6 +19,7 @@ export default function PresentClient({ code }: { code: string }) {
   const refreshData = useCallback(async () => {
     const response = await fetch(`/api/sessions/${code}/present-data`, {
       credentials: "include",
+      headers: adminAuthHeaders(),
     });
     const data = await response.json();
 

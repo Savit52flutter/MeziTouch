@@ -7,6 +7,7 @@ import { useState } from "react";
 import { AdminAuthGate, AdminAuthProvider } from "@/components/admin-auth-gate";
 import { PastEventsList } from "@/components/past-events-list";
 import { Badge, Button, Card, Input, PageShell } from "@/components/ui";
+import { adminAuthHeaders } from "@/lib/admin-session";
 
 function CreateSessionCard() {
   const router = useRouter();
@@ -21,7 +22,10 @@ function CreateSessionCard() {
     try {
       const response = await fetch("/api/sessions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...adminAuthHeaders(),
+        },
         credentials: "include",
         body: JSON.stringify({ title }),
       });

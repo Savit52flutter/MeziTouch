@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { isSupabaseAuthConfigured } from "@/lib/supabase/auth-server";
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!isSupabaseAuthConfigured()) {
     return NextResponse.json({
       authenticated: false,
@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   try {
-    const admin = await getAuthenticatedAdmin();
+    const admin = await getAuthenticatedAdmin(request);
 
     return NextResponse.json({
       authenticated: admin !== null,

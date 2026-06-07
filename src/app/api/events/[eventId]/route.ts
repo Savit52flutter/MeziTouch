@@ -7,7 +7,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ eventId: string }> },
 ) {
-  const denied = await requireAdminApi();
+  const denied = await requireAdminApi(_request);
   if (denied) {
     return denied;
   }

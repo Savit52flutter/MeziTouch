@@ -9,7 +9,7 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ code: string }> },
 ) {
-  const denied = await requireAdminApi();
+  const denied = await requireAdminApi(_request);
   if (denied) {
     return denied;
   }

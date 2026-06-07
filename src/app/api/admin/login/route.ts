@@ -74,6 +74,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       email: data.user.email,
+      access_token: data.session?.access_token ?? null,
     });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });

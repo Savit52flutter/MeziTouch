@@ -9,6 +9,7 @@ import {
   questionAllowsMultiple,
   questionAllowsOther,
 } from "@/lib/question-rules";
+import { adminAuthHeaders } from "@/lib/admin-session";
 import { CONFIDENTIAL_SECTION_NOTE } from "@/lib/wellness-survey";
 import type { Question, Session } from "@/lib/types";
 
@@ -26,6 +27,7 @@ export default function AdminClient({ code }: { code: string }) {
   const loadData = useCallback(async () => {
     const response = await fetch(`/api/admin/sessions/${code}`, {
       credentials: "include",
+      headers: adminAuthHeaders(),
     });
     const data = await response.json();
 
@@ -64,7 +66,10 @@ export default function AdminClient({ code }: { code: string }) {
 
     const response = await fetch(`/api/admin/sessions/${code}/questions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...adminAuthHeaders(),
+      },
       credentials: "include",
       body: JSON.stringify({
         prompt: prompt.trim(),
@@ -92,6 +97,7 @@ export default function AdminClient({ code }: { code: string }) {
       const response = await fetch(`/api/sessions/${code}/seed-survey`, {
         method: "POST",
         credentials: "include",
+        headers: adminAuthHeaders(),
       });
       const data = await response.json();
 

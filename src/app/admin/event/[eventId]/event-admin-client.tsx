@@ -7,6 +7,7 @@ import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { EventQrPrintSheet } from "@/components/event-qr-print-sheet";
 import { QrCode } from "@/components/qr-code";
 import { Badge, Button, Card, PageShell } from "@/components/ui";
+import { adminAuthHeaders } from "@/lib/admin-session";
 import { getJoinUrl } from "@/lib/join-url";
 import { SURVEY_PACK_LABELS } from "@/lib/survey-pack-labels";
 import { CONFIDENTIAL_SECTION_NOTE } from "@/lib/wellness-survey";
@@ -21,6 +22,7 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
   const loadData = useCallback(async () => {
     const response = await fetch(`/api/events/${eventId}`, {
       credentials: "include",
+      headers: adminAuthHeaders(),
     });
     const data = await response.json();
 

@@ -9,6 +9,11 @@ import {
   type ReactNode,
 } from "react";
 
+import {
+  adminAuthHeaders,
+  clearAdminAccessToken,
+  storeAdminAccessToken,
+} from "@/lib/admin-session";
 import { Button, Card, Input, Label } from "@/components/ui";
 
 function AdminLoginLayout({
@@ -44,6 +49,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch("/api/admin/status", {
         credentials: "include",
+        headers: adminAuthHeaders(),
       });
       const data = await response.json();
       setAuthenticated(Boolean(data.authenticated));
@@ -78,6 +84,7 @@ function useAdminAuthState() {
     try {
       const response = await fetch("/api/admin/status", {
         credentials: "include",
+        headers: adminAuthHeaders(),
       });
       const data = await response.json();
       setLocalAuthenticated(Boolean(data.authenticated));
@@ -116,7 +123,7 @@ export function AdminAuthGate({
   children: ReactNode;
   centerLogin?: boolean;
 }) {
-  const { authenticated, setAuthenticated } = useAdminAuthState();
+  const { authenticated, refreshStatus } = useAdminAuthState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -145,7 +152,12 @@ export function AdminAuthGate({
       }
 
       setPassword("");
-      setAuthenticated(true);
+
+      if (data.access_token) {
+        storeAdminAccessToken(data.access_token);
+      }
+
+      await refreshStatus();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

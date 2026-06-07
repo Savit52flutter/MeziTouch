@@ -15,10 +15,10 @@ function presenterCacheKey(code: string): string {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ code: string }> },
 ) {
-  const denied = await requireAdminApi();
+  const denied = await requireAdminApi(request);
   if (denied) {
     return denied;
   }

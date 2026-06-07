@@ -68,8 +68,36 @@ export function isAdminUser(user: User): boolean {
   );
 }
 
-export async function getAuthenticatedAdmin() {
+function getBearerTokenFromRequest(request?: Request): string | null {
+  if (!request) {
+    return null;
+  }
+
+  const authorization = request.headers.get("authorization");
+
+  if (!authorization?.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authorization.slice("Bearer ".length).trim();
+  return token || null;
+}
+
+export async function getAuthenticatedAdmin(request?: Request) {
   const supabase = await createAuthServerClient();
+  const bearerToken = getBearerTokenFromRequest(request);
+
+  if (bearerToken) {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(bearerToken);
+
+    if (!error && user && isAdminUser(user)) {
+      return user;
+    }
+  }
+
   const {
     data: { user },
     error,

@@ -4,8 +4,8 @@ import {
   isAdminUser,
 } from "./supabase/auth-server";
 
-export async function isAdminAuthenticated(): Promise<boolean> {
-  const admin = await getAuthenticatedAdmin();
+export async function isAdminAuthenticated(request?: Request): Promise<boolean> {
+  const admin = await getAuthenticatedAdmin(request);
   return admin !== null;
 }
 

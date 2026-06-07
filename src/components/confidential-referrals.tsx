@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button, Card } from "@/components/ui";
+import { adminAuthHeaders } from "@/lib/admin-session";
 import {
   confidentialReferralsToCsv,
   type ConfidentialReferral,
@@ -45,6 +46,7 @@ export function ConfidentialReferralsPanel({ code }: { code: string }) {
       const response = await fetch(`/api/sessions/${code}/confidential-referrals`, {
         method: "POST",
         credentials: "include",
+        headers: adminAuthHeaders(),
       });
       const data = await response.json();
 

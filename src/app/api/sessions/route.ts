@@ -4,7 +4,7 @@ import { createSurveyEvent } from "@/lib/create-survey-event";
 import { requireAdminApi } from "@/lib/require-admin-api";
 
 export async function POST(request: Request) {
-  const denied = await requireAdminApi();
+  const denied = await requireAdminApi(request);
   if (denied) {
     return denied;
   }

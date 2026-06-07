@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/require-admin-api";
 import { createServerClient } from "@/lib/supabase/server";
 
-export async function GET() {
-  const denied = await requireAdminApi();
+export async function GET(request: Request) {
+  const denied = await requireAdminApi(request);
   if (denied) {
     return denied;
   }

@@ -5,7 +5,7 @@ import { createAuthServerClient } from "@/lib/supabase/auth-server";
 
 export async function POST(request: Request) {
   try {
-    const admin = await getAuthenticatedAdmin();
+    const admin = await getAuthenticatedAdmin(request);
 
     if (!admin?.email) {
       return NextResponse.json(

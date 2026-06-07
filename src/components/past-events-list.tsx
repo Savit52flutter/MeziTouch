@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin-auth-gate";
 import { Button } from "@/components/ui";
+import { adminAuthHeaders } from "@/lib/admin-session";
 
 interface PastEvent {
   id: string;
@@ -26,7 +27,10 @@ export function PastEventsList() {
     setNeedsSignIn(false);
 
     try {
-      const response = await fetch("/api/events", { credentials: "include" });
+      const response = await fetch("/api/events", {
+        credentials: "include",
+        headers: adminAuthHeaders(),
+      });
       const data = await response.json();
 
       if (response.status === 401) {
