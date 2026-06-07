@@ -1,7 +1,7 @@
 const path = require("node:path");
 
-// Default 1 worker — faster on small VPS; set WEB_CONCURRENCY=2+ for bigger servers.
-const instances = process.env.WEB_CONCURRENCY || "1";
+// Default 4 workers (PM2 cluster). Set WEB_CONCURRENCY=1 on a small VPS if needed.
+const instances = process.env.WEB_CONCURRENCY || "4";
 
 module.exports = {
   apps: [
