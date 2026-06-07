@@ -1,6 +1,7 @@
 const path = require("node:path");
 
-const instances = process.env.WEB_CONCURRENCY || "max";
+// Default 2 workers — "max" on a small VPS often uses too much RAM and feels slower.
+const instances = process.env.WEB_CONCURRENCY || "2";
 
 module.exports = {
   apps: [

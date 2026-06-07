@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "pm2-runtime start ecosystem.config.cjs",
+    "start": "node scripts/start-production.cjs",
     "start:single": "node scripts/server.cjs",
     "lint": "eslint"
   },

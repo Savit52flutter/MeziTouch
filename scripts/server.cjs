@@ -12,7 +12,7 @@ const handle = app.getRequestHandler();
 app
   .prepare()
   .then(() => {
-    createServer(async (req, res) => {
+    const server = createServer(async (req, res) => {
       try {
         const parsedUrl = parse(req.url, true);
         await handle(req, res, parsedUrl);
@@ -21,7 +21,12 @@ app
         res.statusCode = 500;
         res.end("Internal Server Error");
       }
-    }).listen(port, () => {
+    });
+
+    server.keepAliveTimeout = 65_000;
+    server.headersTimeout = 66_000;
+
+    server.listen(port, () => {
       console.log(`> Ready on http://localhost:${port} (pid ${process.pid})`);
     });
   })
