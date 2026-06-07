@@ -2,7 +2,7 @@ const { spawn } = require("node:child_process");
 const path = require("node:path");
 
 const root = path.join(__dirname, "..");
-const workers = process.env.WEB_CONCURRENCY ?? "2";
+const workers = process.env.WEB_CONCURRENCY ?? "1";
 
 if (workers === "1") {
   require("./server.cjs");
