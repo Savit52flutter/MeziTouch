@@ -10,6 +10,7 @@ import {
 } from "@/lib/answers";
 import { getParticipantId } from "@/lib/participant";
 import {
+  consumePendingSessionPassword,
   sessionAccessHeaders,
   storeSessionAccessToken,
 } from "@/lib/session-access";
@@ -192,6 +193,43 @@ export default function JoinClient({ code }: { code: string }) {
           await loadSurvey();
           return;
         }
+      }
+
+      const pendingPassword = consumePendingSessionPassword(code);
+      if (pendingPassword && meta.requires_password) {
+        setPassword(pendingPassword);
+        setVerifying(true);
+
+        try {
+          const response = await fetch(`/api/sessions/${code}/verify-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              password: normalizeSessionPassword(pendingPassword),
+            }),
+          });
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error ?? "Incorrect password");
+          }
+
+          if (data.access_token) {
+            storeSessionAccessToken(code, data.access_token);
+          }
+
+          setIsUnlocked(true);
+          await loadSurvey();
+          return;
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Verification failed");
+        } finally {
+          setVerifying(false);
+          setLoading(false);
+        }
+
+        return;
       }
 
       setLoading(false);

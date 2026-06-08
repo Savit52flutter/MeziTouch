@@ -1,43 +1,23 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
-import { useAdminAuth } from "@/components/admin-auth-gate";
 import { Button, Card, Input, Label } from "@/components/ui";
-import {
-  adminAuthHeaders,
-  clearAdminAccessToken,
-} from "@/lib/admin-session";
+import { adminAuthHeaders } from "@/lib/admin-session";
 
-export function AdminLogoutButton({
-  redirectHome = true,
+export function DeleteEventButton({
+  eventId,
+  eventTitle,
+  onDeleted,
 }: {
-  redirectHome?: boolean;
+  eventId: string;
+  eventTitle: string;
+  onDeleted: () => void;
 }) {
-  const router = useRouter();
-  const adminAuth = useAdminAuth();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const loadStatus = useCallback(async () => {
-    const response = await fetch("/api/admin/status", {
-      credentials: "include",
-      headers: adminAuthHeaders(),
-    });
-    const data = await response.json();
-
-    if (data.email) {
-      setEmail(data.email);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
 
   function openConfirm() {
     setError("");
@@ -51,9 +31,9 @@ export function AdminLogoutButton({
     setError("");
   }
 
-  async function logout() {
+  async function deleteEvent() {
     if (!password) {
-      setError("Enter your admin password to log out.");
+      setError("Enter your admin password to delete this event.");
       return;
     }
 
@@ -61,8 +41,8 @@ export function AdminLogoutButton({
     setError("");
 
     try {
-      const response = await fetch("/api/admin/logout", {
-        method: "POST",
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           ...adminAuthHeaders(),
@@ -73,18 +53,14 @@ export function AdminLogoutButton({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Failed to log out");
+        throw new Error(data.error ?? "Failed to delete event");
       }
 
-      clearAdminAccessToken();
       setShowConfirm(false);
-      await adminAuth?.refreshStatus();
-      if (redirectHome) {
-        router.push("/");
-      }
-      router.refresh();
+      setPassword("");
+      onDeleted();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to log out");
+      setError(err instanceof Error ? err.message : "Failed to delete event");
     } finally {
       setLoading(false);
     }
@@ -92,16 +68,21 @@ export function AdminLogoutButton({
 
   return (
     <div className="relative">
-      <Button variant="secondary" onClick={openConfirm}>
-        Log out
+      <Button
+        variant="secondary"
+        className="border-red-200 text-red-600 hover:bg-red-50"
+        onClick={openConfirm}
+      >
+        Delete
       </Button>
 
       {showConfirm ? (
-        <Card className="absolute right-0 top-full z-10 mt-2 w-[280px] p-4 shadow-md">
-          <p className="text-sm font-medium text-mezi-primary">Confirm log out</p>
+        <Card className="absolute right-0 top-full z-10 mt-2 w-[min(280px,calc(100vw-2rem))] p-4 shadow-md">
+          <p className="text-sm font-medium text-mezi-primary">Delete event?</p>
           <p className="mt-1 text-xs text-mezi-muted">
-            Enter your admin password to sign out
-            {email ? ` (${email})` : ""}.
+            This permanently removes <span className="font-medium">{eventTitle}</span>,
+            all session packs, questions, and responses. Enter your admin password
+            to confirm.
           </p>
           <div className="mt-3">
             <Label>Admin password</Label>
@@ -122,8 +103,12 @@ export function AdminLogoutButton({
             >
               Cancel
             </Button>
-            <Button className="flex-1" onClick={logout} disabled={loading}>
-              {loading ? "Signing out..." : "Confirm"}
+            <Button
+              className="flex-1 border-red-200 bg-red-600 hover:bg-red-700"
+              onClick={deleteEvent}
+              disabled={loading}
+            >
+              {loading ? "Deleting..." : "Delete"}
             </Button>
           </div>
           {error ? <p className="mt-2 text-xs text-red-500">{error}</p> : null}

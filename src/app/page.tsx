@@ -8,6 +8,13 @@ import { AdminAuthGate, AdminAuthProvider } from "@/components/admin-auth-gate";
 import { PastEventsList } from "@/components/past-events-list";
 import { Badge, Button, Card, Input, PageShell } from "@/components/ui";
 import { adminAuthHeaders } from "@/lib/admin-session";
+import { storePendingSessionPassword } from "@/lib/session-access";
+import { normalizeSessionCodeInput, SESSION_CODE_LENGTH } from "@/lib/session-code";
+import {
+  SESSION_PASSWORD_DIGITS,
+  SESSION_PASSWORD_PREFIX,
+  sessionPasswordHint,
+} from "@/lib/session-password";
 
 function CreateSessionCard() {
   const router = useRouter();
@@ -72,14 +79,34 @@ function CreateSessionCard() {
 export default function HomePage() {
   const router = useRouter();
   const [joinCode, setJoinCode] = useState("");
+  const [passwordDigits, setPasswordDigits] = useState("");
   const [error, setError] = useState("");
 
   function joinSession() {
-    const code = joinCode.trim().toUpperCase();
+    const code = normalizeSessionCodeInput(joinCode);
+
     if (!code) {
-      setError("Enter a session code");
+      setError("Enter the session code.");
       return;
     }
+
+    if (code.length !== SESSION_CODE_LENGTH) {
+      setError(`Enter the full ${SESSION_CODE_LENGTH}-character session code.`);
+      return;
+    }
+
+    if (
+      passwordDigits.length > 0 &&
+      passwordDigits.length !== SESSION_PASSWORD_DIGITS
+    ) {
+      setError(`Enter all ${SESSION_PASSWORD_DIGITS} password digits (${sessionPasswordHint()}).`);
+      return;
+    }
+
+    if (passwordDigits.length === SESSION_PASSWORD_DIGITS) {
+      storePendingSessionPassword(code, passwordDigits);
+    }
+
     router.push(`/join/${code}`);
   }
 
@@ -105,7 +132,7 @@ export default function HomePage() {
         <Card>
           <h2 className="text-xl font-semibold text-mezi-primary">Join as audience</h2>
           <p className="mt-2 text-sm text-mezi-muted">
-            Enter the session code and MT + 6-digit password given by the presenter.
+            Enter the session code and {sessionPasswordHint()} given by the presenter.
           </p>
           <div className="mt-6">
             <label className="mb-2 block text-sm font-medium text-mezi-muted">
@@ -114,9 +141,37 @@ export default function HomePage() {
             <Input
               placeholder="ABC123"
               value={joinCode}
-              onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
-              maxLength={6}
+              onChange={(event) =>
+                setJoinCode(normalizeSessionCodeInput(event.target.value))
+              }
+              maxLength={SESSION_CODE_LENGTH}
+              autoComplete="off"
             />
+          </div>
+          <div className="mt-4">
+            <label className="mb-2 block text-sm font-medium text-mezi-muted">
+              Password
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="rounded-xl border border-mezi-gray bg-mezi-cream-soft px-4 py-3 font-mono font-semibold text-mezi-primary">
+                {SESSION_PASSWORD_PREFIX}
+              </span>
+              <Input
+                className="font-mono"
+                placeholder={`${SESSION_PASSWORD_DIGITS} digits`}
+                value={passwordDigits}
+                onChange={(event) =>
+                  setPasswordDigits(
+                    event.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, SESSION_PASSWORD_DIGITS),
+                  )
+                }
+                inputMode="numeric"
+                maxLength={SESSION_PASSWORD_DIGITS}
+                autoComplete="off"
+              />
+            </div>
           </div>
           <Button className="mt-6 w-full" onClick={joinSession}>
             Join session
