@@ -3,6 +3,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import {
+  getAdminAllowlistEmails,
+  normalizeEmailForAuth,
+} from "@/lib/admin-email-config";
+import {
   getSupabaseCookieOptions,
   isAdminUser,
 } from "@/lib/supabase/auth-server";
@@ -13,7 +17,7 @@ export async function POST(request: Request) {
       email?: string;
       password?: string;
     };
-    const email = body.email?.trim() ?? "";
+    const email = normalizeEmailForAuth(body.email ?? "");
     const password = body.password ?? "";
 
     if (!email || !password) {
@@ -60,12 +64,18 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!isAdminUser(data.user)) {
+    if (!isAdminUser(data.user, email)) {
       await supabase.auth.signOut();
+
+      const allowlistCount = getAdminAllowlistEmails().length;
+      const signedInAs = data.user.email ?? email;
+
       return NextResponse.json(
         {
           error:
-            "This account is not authorised for admin access. Set user metadata role to admin or add the email to ADMIN_EMAILS.",
+            allowlistCount === 0
+              ? "ADMIN_EMAILS is not configured on the server."
+              : `This account is not authorised for admin access (${signedInAs}). Add that email to ADMIN_EMAILS in Coolify, or set user metadata role to admin in Supabase.`,
         },
         { status: 403 },
       );
