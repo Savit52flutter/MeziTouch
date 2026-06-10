@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   createContext,
   useCallback,
@@ -205,6 +206,11 @@ export function AdminAuthGate({
           <Button className="mt-4 w-full" onClick={login} disabled={loading}>
             {loading ? "Signing in..." : "Sign in"}
           </Button>
+          <p className="mt-4 text-center text-sm">
+            <Link href="/auth/forgot-password" className="text-mezi-muted underline">
+              Forgot password?
+            </Link>
+          </p>
           {error ? <p className="mt-4 text-red-500">{error}</p> : null}
         </Card>
       </AdminLoginLayout>

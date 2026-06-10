@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
 
@@ -6,14 +6,9 @@ import {
   getUserAccountEmail,
   isEmailInAdminAllowlist,
 } from "@/lib/admin-email-config";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
-export function getSupabaseCookieOptions(): CookieOptions {
-  return {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  };
-}
+export { getSupabaseCookieOptions };
 
 function getSupabaseAuthEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
