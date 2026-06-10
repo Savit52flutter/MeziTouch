@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Badge, Button, Card, Input, PageShell, Textarea } from "@/components/ui";
@@ -10,6 +11,7 @@ import {
 } from "@/lib/answers";
 import { getParticipantId } from "@/lib/participant";
 import {
+  clearStoredSessionAccessToken,
   consumePendingSessionPassword,
   sessionAccessHeaders,
   storeSessionAccessToken,
@@ -35,6 +37,7 @@ function isLongTextQuestion(question: Question) {
 }
 
 export default function JoinClient({ code }: { code: string }) {
+  const router = useRouter();
   const [sessionMeta, setSessionMeta] = useState<SessionMeta | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -487,22 +490,35 @@ export default function JoinClient({ code }: { code: string }) {
           <p className="text-mezi-muted">No questions are available for this session.</p>
         </Card>
       ) : isComplete ? (
-        <Card className="mx-auto max-w-lg text-center">
-          <h2 className="text-xl font-semibold text-mezi-primary">Thank you</h2>
-          <p className="mt-2 text-mezi-muted">
-            You have completed all {questions.length} questions in this session.
-          </p>
-          <Button
-            className="mt-6"
-            variant="secondary"
-            onClick={() => {
-              setIsComplete(false);
-              setCurrentIndex(questions.length - 1);
-            }}
-          >
-            Review answers
-          </Button>
-        </Card>
+        <>
+          <Card className="mx-auto max-w-lg text-center">
+            <h2 className="text-xl font-semibold text-mezi-primary">Thank you</h2>
+            <p className="mt-2 text-mezi-muted">
+              You have completed all {questions.length} questions in this session.
+            </p>
+            <Button
+              className="mt-6"
+              variant="secondary"
+              onClick={() => {
+                setIsComplete(false);
+                setCurrentIndex(questions.length - 1);
+              }}
+            >
+              Review answers
+            </Button>
+          </Card>
+          <div className="mt-8 text-center">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                clearStoredSessionAccessToken(code);
+                router.push("/");
+              }}
+            >
+              Go back
+            </Button>
+          </div>
+        </>
       ) : currentQuestion ? (
         <Card className="mx-auto max-w-lg">
           <div className="mb-6">
