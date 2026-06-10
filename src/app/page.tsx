@@ -16,6 +16,54 @@ import {
   sessionPasswordHint,
 } from "@/lib/session-password";
 
+function CreateYourVoiceMattersCard() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function createSession() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/sessions/your-voice-matters", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...adminAuthHeaders(),
+        },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to create session");
+      }
+
+      router.push(`/admin/event/${data.eventId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Card>
+      <h2 className="text-xl font-semibold text-mezi-primary">Your Voice Matters</h2>
+      <p className="mt-2 text-sm text-mezi-muted">
+        One-off educator survey with 8 questions. Not included in the standard
+        wellness session packs.
+      </p>
+      <Button className="mt-6 w-full" onClick={createSession} disabled={loading}>
+        {loading ? "Creating..." : "Create Your Voice Matters session"}
+      </Button>
+      {error ? <p className="mt-4 text-red-400">{error}</p> : null}
+    </Card>
+  );
+}
+
 function CreateSessionCard() {
   const router = useRouter();
   const [title, setTitle] = useState("Workplace Wellness Survey");
@@ -126,7 +174,10 @@ export default function HomePage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <AdminAuthGate>
-          <CreateSessionCard />
+          <div className="space-y-6">
+            <CreateSessionCard />
+            <CreateYourVoiceMattersCard />
+          </div>
         </AdminAuthGate>
 
         <Card>

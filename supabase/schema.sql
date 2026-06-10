@@ -19,7 +19,8 @@ create table if not exists sessions (
       'silent_struggle',
       'wake_up_call',
       'reality_recovery',
-      'confidential_referral'
+      'confidential_referral',
+      'your_voice_matters'
     )),
   access_password text
     check (access_password is null or access_password ~ '^MT\d{6}$'),

@@ -4,7 +4,8 @@ export type SurveyPackId =
   | "silent_struggle"
   | "wake_up_call"
   | "reality_recovery"
-  | "confidential_referral";
+  | "confidential_referral"
+  | "your_voice_matters";
 
 export interface SurveyEvent {
   id: string;

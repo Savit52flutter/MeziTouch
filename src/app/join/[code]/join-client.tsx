@@ -30,10 +30,21 @@ import { CONFIDENTIAL_SECTION_NOTE } from "@/lib/wellness-survey";
 import type { Question, SessionMeta } from "@/lib/types";
 
 function isLongTextQuestion(question: Question) {
-  return (
-    question.question_type === "text" &&
-    question.prompt.toLowerCase().includes("comments")
-  );
+  if (question.question_type !== "text") {
+    return false;
+  }
+
+  const prompt = question.prompt.toLowerCase();
+
+  if (
+    prompt.includes("contact number") ||
+    prompt.includes("email address") ||
+    (prompt.includes("name") && prompt.includes("surname"))
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export default function JoinClient({ code }: { code: string }) {
