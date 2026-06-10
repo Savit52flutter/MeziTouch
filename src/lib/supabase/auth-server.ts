@@ -2,6 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
 
+import { isEmailInAdminAllowlist } from "@/lib/admin-email-config";
+
 export function getSupabaseCookieOptions(): CookieOptions {
   return {
     secure: process.env.NODE_ENV === "production",
@@ -54,12 +56,7 @@ export async function createAuthServerClient() {
 }
 
 export function isAdminUser(user: User): boolean {
-  const allowedEmails = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
-
-  if (user.email && allowedEmails.includes(user.email.toLowerCase())) {
+  if (user.email && isEmailInAdminAllowlist(user.email)) {
     return true;
   }
 

@@ -14,7 +14,9 @@ module.exports = {
       exec_mode: "cluster",
       autorestart: true,
       max_memory_restart: "512M",
+      // Pass through Coolify/Docker env (ADMIN_EMAILS, Supabase keys, etc.)
       env: {
+        ...process.env,
         NODE_ENV: "production",
       },
     },
