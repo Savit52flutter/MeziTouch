@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { EventQrPrintSheet } from "@/components/event-qr-print-sheet";
+import { EventPrizeDraw } from "@/components/event-prize-draw";
 import { QrCode } from "@/components/qr-code";
 import { Badge, Button, Card, PageShell } from "@/components/ui";
 import { adminAuthHeaders } from "@/lib/admin-session";
@@ -18,6 +19,7 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
   const [sessions, setSessions] = useState<EventSessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showDraw, setShowDraw] = useState(false);
 
   const loadData = useCallback(async () => {
     const response = await fetch(`/api/events/${eventId}`, {
@@ -78,9 +80,14 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
               </p>
             </div>
             <div className="flex flex-col items-end gap-2">
-              <Button variant="secondary" onClick={() => window.print()}>
-                Print QR codes
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button variant="secondary" onClick={() => window.print()}>
+                  Print QR codes
+                </Button>
+                <Button variant="secondary" onClick={() => setShowDraw(true)}>
+                  Win
+                </Button>
+              </div>
               <div className="flex items-start gap-2">
                 <Link href="/#past-events">
                   <Button variant="secondary">Past events</Button>
@@ -160,6 +167,13 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
       </PageShell>
 
       <EventQrPrintSheet event={event} sessions={sessions} origin={origin} />
+      {showDraw ? (
+        <EventPrizeDraw
+          eventId={eventId}
+          eventTitle={event.title}
+          onClose={() => setShowDraw(false)}
+        />
+      ) : null}
     </>
   );
 }
