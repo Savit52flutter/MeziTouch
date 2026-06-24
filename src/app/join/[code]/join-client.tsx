@@ -528,6 +528,14 @@ export default function JoinClient({ code }: { code: string }) {
             >
               Go back
             </Button>
+            <p className="mt-8 text-xs text-mezi-muted">App developed by</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/savit52-logo.png"
+              alt="Savit52 CREATE"
+              className="mx-auto mt-2 block object-contain"
+              style={{ width: "2cm", height: "auto" }}
+            />
           </div>
         </>
       ) : currentQuestion ? (
