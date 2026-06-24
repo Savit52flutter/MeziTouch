@@ -529,13 +529,21 @@ export default function JoinClient({ code }: { code: string }) {
               Go back
             </Button>
             <p className="mt-8 text-xs text-mezi-muted">App developed by</p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/savit52-logo.png"
-              alt="Savit52 CREATE"
-              className="mx-auto mt-2 block object-contain"
-              style={{ width: "2cm", height: "auto" }}
-            />
+            <a
+              href="https://savit52.co.za"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-auto mt-2 inline-block"
+              aria-label="Savit52 CREATE"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/savit52-logo.png"
+                alt="Savit52 CREATE"
+                className="block object-contain"
+                style={{ width: "2cm", height: "auto" }}
+              />
+            </a>
           </div>
         </>
       ) : currentQuestion ? (
