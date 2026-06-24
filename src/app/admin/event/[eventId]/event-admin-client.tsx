@@ -5,7 +5,12 @@ import { useCallback, useEffect, useState } from "react";
 
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { EventQrPrintSheet } from "@/components/event-qr-print-sheet";
+import { EventSessionFormPrint } from "@/components/event-session-form-print";
 import { EventPrizeDraw } from "@/components/event-prize-draw";
+import {
+  SessionFormButton,
+  type SessionFormPrintPayload,
+} from "@/components/session-form-button";
 import { QrCode } from "@/components/qr-code";
 import { Badge, Button, Card, PageShell } from "@/components/ui";
 import { adminAuthHeaders } from "@/lib/admin-session";
@@ -20,6 +25,10 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showDraw, setShowDraw] = useState(false);
+  const [printQr, setPrintQr] = useState(false);
+  const [printForm, setPrintForm] = useState<SessionFormPrintPayload | null>(
+    null,
+  );
 
   const loadData = useCallback(async () => {
     const response = await fetch(`/api/events/${eventId}`, {
@@ -45,6 +54,35 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
     setOrigin(window.location.origin);
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    function clearPrintState() {
+      setPrintQr(false);
+      setPrintForm(null);
+    }
+
+    window.addEventListener("afterprint", clearPrintState);
+    return () => window.removeEventListener("afterprint", clearPrintState);
+  }, []);
+
+  useEffect(() => {
+    if (!printQr && !printForm) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => window.print(), 100);
+    return () => window.clearTimeout(timer);
+  }, [printQr, printForm]);
+
+  function handlePrintQr() {
+    setPrintForm(null);
+    setPrintQr(true);
+  }
+
+  function handlePrintForm(payload: SessionFormPrintPayload) {
+    setPrintQr(false);
+    setPrintForm(payload);
+  }
 
   if (loading) {
     return (
@@ -81,7 +119,7 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
             </div>
             <div className="flex flex-col items-end gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="secondary" onClick={() => window.print()}>
+                <Button variant="secondary" onClick={handlePrintQr}>
                   Print QR codes
                 </Button>
                 <Button variant="secondary" onClick={() => setShowDraw(true)}>
@@ -140,11 +178,15 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
                     ) : null}
                   </div>
 
-                  <div className="flex flex-col items-center justify-center px-2">
+                  <div className="flex flex-col items-center justify-center gap-3 px-2">
                     <QrCode value={joinUrl} size={140} />
-                    <p className="mt-2 text-center text-xs text-mezi-muted">
+                    <p className="text-center text-xs text-mezi-muted">
                       Scan to join
                     </p>
+                    <SessionFormButton
+                      session={session}
+                      onPrint={handlePrintForm}
+                    />
                   </div>
 
                   <div className="flex flex-col gap-2 lg:min-w-[180px]">
@@ -166,7 +208,19 @@ export default function EventAdminClient({ eventId }: { eventId: string }) {
         {error ? <p className="mt-4 text-red-400">{error}</p> : null}
       </PageShell>
 
-      <EventQrPrintSheet event={event} sessions={sessions} origin={origin} />
+      <EventQrPrintSheet
+        event={event}
+        sessions={sessions}
+        origin={origin}
+        active={printQr}
+      />
+      {printForm ? (
+        <EventSessionFormPrint
+          eventTitle={event.title}
+          session={printForm.session}
+          questions={printForm.questions}
+        />
+      ) : null}
       {showDraw ? (
         <EventPrizeDraw
           eventId={eventId}

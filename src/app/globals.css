@@ -59,4 +59,9 @@ body {
   .print-hidden {
     display: none !important;
   }
+
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

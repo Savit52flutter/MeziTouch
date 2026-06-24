@@ -10,13 +10,19 @@ interface EventQrPrintSheetProps {
   event: SurveyEvent;
   sessions: EventSessionSummary[];
   origin: string;
+  active?: boolean;
 }
 
 export function EventQrPrintSheet({
   event,
   sessions,
   origin,
+  active = false,
 }: EventQrPrintSheetProps) {
+  if (!active) {
+    return null;
+  }
+
   return (
     <div className="hidden print:block">
       <div className="mx-auto max-w-[210mm] p-6 text-mezi-text">
